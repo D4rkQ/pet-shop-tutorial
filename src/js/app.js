@@ -21,27 +21,6 @@ App = {
         petsRow.append(petTemplate.html());
       }
     });
-
-    $.getJSON('/kran.json', function(data) {
-        var KranArtifact = data;
-        console.log(KranArtifact);
-
-        App.contracts.Kran = TruffleContract(KranArtifact);
-        console.log(App.contracts);
-        console.log(App.contracts.Kran.deployed());
-        App.contracts.Kran.setProvider(App.web3Provider);
-
-
-        App.contracts.Kran.deployed().then(function(instance) {
-            kranInstance = instance;
-            console.log("dafsdf");
-            // Execute adopt as a transaction by sending account
-            console.log(kranInstance.getName());
-        });
-
-
-    });
-
     return App.initWeb3();
   },
 
@@ -54,7 +33,6 @@ App = {
           App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
       }
       web3 = new Web3(App.web3Provider);
-
 
       //
       // console.log(web3.version);
@@ -80,6 +58,22 @@ App = {
           // Use our contract to retrieve and mark the adopted pets
           return App.markAdopted();
       });
+
+      $.getJSON('/kran.json', function(data) {
+          var KranArtifact = data;
+          //console.log(KranArtifact);
+
+          App.contracts.Kran = TruffleContract(KranArtifact);
+          console.log(App.contracts);
+          console.log(App.contracts.Kran.deployed());
+          App.contracts.Kran.setProvider(App.web3Provider);
+
+          // App.contracts.Kran.deployed().then(function(instance) {
+          //     kranInstance = instance;
+          //     console.log("dafsdf");
+          // });
+      });
+
     return App.bindEvents();
   },
 
@@ -106,48 +100,9 @@ App = {
           console.log(err.message);
       });
 
-
-
       //14.01.2019
-      App.contracts.Adoption.deployed().then(function(instance) {
-          adoptionInstance = instance;
-          createKran(adoptionInstance, '0x6891Ac4E2EF3dA9bc88C96fEDbC9eA4d6D88F768');
 
-          return adoptionInstance.getKrane.call();
-          }).then(function(krane) {
-              console.log(krane[0]);
-              return krane[0];
-          }).then(function(address) {
-              //console.log(App.contracts.Kran.at(address));
-              // Es ist nicht klar ob folgender Aufruf einen neuen Contract erstellt oder den der angegebenen Adresse aufruft
-              // App.contracts.Kran.at(address).then(function(instance) {
-              //     var kranInstance;
-              //     var kranName = "asdfds";
-              //     kranInstance = instance;
-              //     async function getKranName() {
-              //         kranName = await instance.getName();
-              //     }
-              //     getKranName();
-              //
-              //     console.log(kranInstance);
-              //
-              //     console.log(kranName);
-              //
-              //     console.log("TEST")
-              //   })
-
-          let kranInstance;
-          async function getKranInstance() {
-                kranInstance = await App.contracts.Kran.at(address);
-          }
-
-          let x = getKranInstance();
-
-          console.log(kranInstance);
-          console.log(x);
-          console.log("TEST")
-          });
-
+        App.initKran();
 
         // ende 14.01.2019
   },
@@ -207,10 +162,49 @@ App = {
         App.contracts.Adoption.deployed().then(function(instance) {
             createKran(instance, name);
         });
+    },
 
+   initKran: function () {
 
+       App.contracts.Adoption.deployed().then(function(instance) {
+           adoptionInstance = instance;
 
-    }
+           return adoptionInstance.getKrane.call();
+       }).then(function(krane) {
+           //console.log(krane);
+           console.log(krane[0]);
+           return krane[0];
+       }).then(function(address) {
+           //console.log(App.contracts.Kran.at(address));
+           // Es ist nicht klar ob folgender Aufruf einen neuen Contract erstellt oder den der angegebenen Adresse aufruft
+           // App.contracts.Kran.at(address).then(function(instance) {
+           //     var kranInstance;
+           //     var kranName = "asdfds";
+           //     kranInstance = instance;
+           //     async function getKranName() {
+           //         kranName = await instance.getName();
+           //     }
+           //     getKranName();
+           //
+           //     console.log(kranInstance);
+           //
+           //     console.log(kranName);
+           //
+           //     console.log("TEST")
+           //   })
+
+           let kranInstance;
+           async function getKranInstance() {
+               kranInstance = await App.contracts.Kran.at(address);
+               console.log(kranInstance);
+               console.log(await kranInstance.getName());
+           }
+
+           getKranInstance();
+
+       });
+
+   }
 
 };
 
