@@ -81,6 +81,7 @@ App = {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
     //Variable aus Formular einlesen
     $('#submit').on('click', App.createKran);
+    $('#submit').on('click', App.createKran);
   },
 
   markAdopted: function(adopters, account) {
@@ -175,32 +176,65 @@ App = {
            console.log(krane[0]);
            return krane[0];
        }).then(function(address) {
-           //console.log(App.contracts.Kran.at(address));
-           // Es ist nicht klar ob folgender Aufruf einen neuen Contract erstellt oder den der angegebenen Adresse aufruft
-           // App.contracts.Kran.at(address).then(function(instance) {
-           //     var kranInstance;
-           //     var kranName = "asdfds";
-           //     kranInstance = instance;
-           //     async function getKranName() {
-           //         kranName = await instance.getName();
-           //     }
-           //     getKranName();
-           //
-           //     console.log(kranInstance);
-           //
-           //     console.log(kranName);
-           //
-           //     console.log("TEST")
-           //   })
+           console.log(App.contracts.Kran.at(address));
+           //Es ist nicht klar ob folgender Aufruf einen neuen Contract erstellt oder den der angegebenen Adresse aufruft
+           App.contracts.Kran.at(address).then(function(instance) {
+               var kranInstance;
+               var kranName = "asdfds";
+               kranInstance = instance;
+               async function getKranName() {
+                   console.log(await instance.getName());
+               }
+               getKranName();
 
-           let kranInstance;
-           async function getKranInstance() {
-               kranInstance = await App.contracts.Kran.at(address);
+
+
+               console.log(kranInstance.getName().then(function(data) {
+                   return data;
+               }).then(function(data1) {
+                   return data1;
+                   }).then(function(data2) {
+                       return data2;
+                   }).then(function(data3) {
+                       return data3;
+               })
+
+               );
+
+
+
+
                console.log(kranInstance);
-               console.log(await kranInstance.getName());
-           }
 
-           getKranInstance();
+               console.log(kranName);
+
+               console.log("TEST")
+             })
+
+
+           // Kran getName mit Await
+           // let kranInstance;
+           // async function getKranInstance() {
+           //     kranInstance = await App.contracts.Kran.at(address);
+           //     console.log(kranInstance);
+           //     return kranInstance;
+           // }
+           //
+           // let kranName;
+           // async function getKranName() {
+           //     instance1 = await getKranInstance();
+           //     kranName = await instance1.getName();
+           //     console.log(kranName);
+           //     return kranName
+           // }
+           //
+           // getKranName().then(function(data) {
+           //     console.log(data);
+           // });
+           // console.log("dfasdfdsafds" + kranName);
+           // Kran getName mit Await
+
+
 
        });
 
