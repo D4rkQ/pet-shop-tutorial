@@ -190,18 +190,8 @@ App = {
 
 
                console.log(kranInstance.getName().then(function(data) {
-                   return data;
-               }).then(function(data1) {
-                   return data1;
-                   }).then(function(data2) {
-                       return data2;
-                   }).then(function(data3) {
-                       return data3;
-               })
-
-               );
-
-
+                  console.log(data);
+               }));
 
 
                console.log(kranInstance);
