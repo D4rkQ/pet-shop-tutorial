@@ -34,16 +34,8 @@ App = {
       }
       web3 = new Web3(App.web3Provider);
 
-      //
-      // console.log(web3.version);
-      // var myContract = new web3.eth.contract('Adoption.json', '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe', {
-      //     from: '0xFE62CDdA2C8922719cBFd2Bd8c8b9c43103c8152', // default from address
-      //     gasPrice: '20000000000' // default gas price in wei, 20 gwei in this case
-      // });
-      //
-      // myContract.new("param1", "param2",{data: '0xae0B295669a9FD93d5F28D9Ec35E40f4cb697BAe', from: '0xFE62CDdA2C8922719cBFd2Bd8c8b9c43103c8152', gas: 1000000});
-
     return App.initContract();
+
   },
 
   initContract: function() {
@@ -55,33 +47,29 @@ App = {
           // Set the provider for our contract
           App.contracts.Adoption.setProvider(App.web3Provider);
 
-          // Use our contract to retrieve and mark the adopted pets
-          return App.markAdopted();
+          $.getJSON('/kran.json', function(data) {
+              var KranArtifact = data;
+              //console.log(KranArtifact);
+
+              App.contracts.Kran = TruffleContract(KranArtifact);
+              console.log(App.contracts);
+              console.log(App.contracts.Kran.deployed());
+              App.contracts.Kran.setProvider(App.web3Provider);
+
+              // Use our contract to retrieve and mark the adopted pets
+              App.markAdopted();
+              App.bindEvents();
+          });
       });
-
-      $.getJSON('/kran.json', function(data) {
-          var KranArtifact = data;
-          //console.log(KranArtifact);
-
-          App.contracts.Kran = TruffleContract(KranArtifact);
-          console.log(App.contracts);
-          console.log(App.contracts.Kran.deployed());
-          App.contracts.Kran.setProvider(App.web3Provider);
-
-          // App.contracts.Kran.deployed().then(function(instance) {
-          //     kranInstance = instance;
-          //     console.log("dafsdf");
-          // });
-      });
-
-    return App.bindEvents();
   },
+
+
 
   bindEvents: function() {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
     //Variable aus Formular einlesen
     $('#submit').on('click', App.createKran);
-    $('#submit').on('click', App.createKran);
+    $('#initKran').on('click', App.initKran);
   },
 
   markAdopted: function(adopters, account) {
@@ -101,12 +89,41 @@ App = {
           console.log(err.message);
       });
 
-      //14.01.2019
-
-        App.initKran();
-
-        // ende 14.01.2019
+      return App.initKrane();
   },
+
+    initKrane: function () {
+
+        App.contracts.Adoption.deployed().then(function (instance) {
+            adoptionInstance = instance;
+
+            return adoptionInstance.getKrane.call();
+        }).then(function (krane) {
+            var petsRow = $('#petsRow');
+            var petTemplate = $('#petTemplate');
+
+            krane.forEach(function(kran, i) {
+                App.contracts.Kran.at(kran).then(function (kranInstance) {
+
+                    kranInstance.getName().then(function (kranName) {
+
+                        $.getJSON('../pets.json', function(data) {
+                            petTemplate.find('.panel-title').text(kranName);
+                            petTemplate.find('img').attr('src', data[i].picture);
+                            petTemplate.find('.pet-breed').text("data[i].breed");
+                            petTemplate.find('.pet-age').text("data[i].age");
+                            petTemplate.find('.pet-location').text("data[i].location");
+                            //Selbsterstellte Krane werden ab Index 30 eingefügt da 0-15 von den Pets belegt ist.
+                            petTemplate.find('.btn-adopt').attr('data-id', 30+i);
+
+                            petsRow.append(petTemplate.html());
+                        });
+                    })
+                })
+            });
+        });
+
+    },
 
   handleAdopt: function(event) {
     event.preventDefault();
@@ -153,18 +170,17 @@ App = {
         }
 
         //Daten aus dem Frontend abholen
-        var x = $("#Norm").val();
-        var name = $("#zuname").val();
-        App.x = x;
-        //alert(x + name);
-        alert(App.x);
+        var kranName = $("#kranName").val();
+        var norm = $("#Norm").val();
+        alert("Kran Name: " + kranName + "    Norm: " + norm);
 
         //Kran erstellen
         App.contracts.Adoption.deployed().then(function(instance) {
-            createKran(instance, name);
+            createKran(instance, kranName);
         });
     },
 
+    //Krandaten werden aus der Blockchain in Frontend gelesen
    initKran: function () {
 
        App.contracts.Adoption.deployed().then(function(instance) {
@@ -178,21 +194,25 @@ App = {
        }).then(function(address) {
            console.log(App.contracts.Kran.at(address));
            //Es ist nicht klar ob folgender Aufruf einen neuen Contract erstellt oder den der angegebenen Adresse aufruft
-           App.contracts.Kran.at(address).then(function(instance) {
-               var kranInstance;
+           App.contracts.Kran.at(address).then(function(kranInstance) {
                var kranName = "asdfds";
-               kranInstance = instance;
                async function getKranName() {
-                   console.log(await instance.getName());
+                   console.log(await kranInstance.getName());
                }
+
+               async function initKranName() {
+                   const name = (await kranInstance.getName());
+                   $('.panel-title').eq(0).text(name);
+               }
+
                getKranName();
+               initKranName();
 
 
-
-               console.log(kranInstance.getName().then(function(data) {
-                  console.log(data);
-               }));
-
+                kranInstance.getName().then(function(data) {
+                   console.log(data);
+                   App.x = data;
+                });
 
                console.log(kranInstance);
 
