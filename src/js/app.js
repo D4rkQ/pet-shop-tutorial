@@ -69,7 +69,7 @@ App = {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
     //Variable aus Formular einlesen
     $('#submit').on('click', App.createKran);
-    $('#initKran').on('click', App.initKran);
+    $('#initKran').on('click', App.initKrane);
   },
 
   markAdopted: function(adopters, account) {
@@ -80,6 +80,15 @@ App = {
 
           return adoptionInstance.getAdopters.call();
       }).then(function(adopters) {
+          console.log(adopters);
+
+          // adopters.forEach(function(adopter, kran){
+          //     if (adopter !== '0x0000000000000000000000000000000000000000') {
+          //         $('.panel-pet').eq(kran).find('button').text('Success').attr('disabled', true);
+          //     }
+          // });
+
+
           for (i = 0; i < adopters.length; i++) {
               if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
                   $('.panel-pet').eq(i).find('button').text('Success').attr('disabled', true);
@@ -102,14 +111,15 @@ App = {
             var petsRow = $('#petsRow');
             var petTemplate = $('#petTemplate');
 
-            krane.forEach(function(kran, i) {
+            $(petsRow.empty());
+            krane.forEach(function (kran, i) {
                 App.contracts.Kran.at(kran).then(function (kranInstance) {
 
                     kranInstance.getName().then(function (kranName) {
 
-                        $.getJSON('../pets.json', function(data) {
+                        $.getJSON('../pets.json', function (data) {
                             petTemplate.find('.panel-title').text(kranName);
-                            petTemplate.find('img').attr('src', data[i].picture);
+                            petTemplate.find('img').attr('src', "images/high-top-crane.jpg");
                             petTemplate.find('.pet-breed').text("data[i].breed");
                             petTemplate.find('.pet-age').text("data[i].age");
                             petTemplate.find('.pet-location').text("data[i].location");
@@ -118,8 +128,8 @@ App = {
 
                             petsRow.append(petTemplate.html());
                         });
-                    })
-                })
+                    });
+                });
             });
         });
 
@@ -128,8 +138,8 @@ App = {
   handleAdopt: function(event) {
     event.preventDefault();
 
-    var petId = parseInt($(event.target).data('id'));
-
+    var petId = parseInt(event.target).data('id');
+console.log(petId);
       var adoptionInstance;
 
       web3.eth.getAccounts(function(error, accounts) {
@@ -153,31 +163,33 @@ App = {
   },
 
     createKran: function (event) {
-
-        async function createKran(adoptionInstance, name) {
-            var account;
-
-            //ausführenden account für Create definieren
-            web3.eth.getAccounts(function(error, accounts) {
-                if (error) {
-                    console.log(error);
-                }
-                account = accounts[0];
-            });
-
-            //CreateKran auf Smart Contract ausführen
-            return await adoptionInstance.createKran(name, {from: account});
-        }
+        var account;
 
         //Daten aus dem Frontend abholen
         var kranName = $("#kranName").val();
         var norm = $("#Norm").val();
         alert("Kran Name: " + kranName + "    Norm: " + norm);
+        //ausführenden account für Create definieren
+        web3.eth.getAccounts(function(error, accounts) {
+            if (error) {
+                console.log(error);
+            }
+            account = accounts[0];
 
-        //Kran erstellen
-        App.contracts.Adoption.deployed().then(function(instance) {
-            createKran(instance, kranName);
+            //Kran erstellen
+            App.contracts.Adoption.deployed().then(function(adoptionInstance) {
+                console.log("First: " + "dfas");
+                return adoptionInstance.createKran(kranName, {from: account})
+            }).then(function(res){
+                console.log(res);
+                console.log("Second: " + "dfas");
+               return App.initKrane();
+            });
+
         });
+
+
+
     },
 
     //Krandaten werden aus der Blockchain in Frontend gelesen
