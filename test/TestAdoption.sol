@@ -5,7 +5,7 @@ import "truffle/DeployedAddresses.sol";
 import "../contracts/Adoption.sol";
 
 contract TestAdoption {
-    Adoption adoption = Adoption(DeployedAddresses.Adoption());
+    CraneBuilder adoption = CraneBuilder(DeployedAddresses.Adoption());
     uint public initialBalance = 1 ether;
     uint private testWei = 200000 wei;
 

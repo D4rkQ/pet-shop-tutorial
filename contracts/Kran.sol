@@ -1,18 +1,24 @@
 pragma solidity ^0.4.24;
 
 contract Kran {
+    // owner ist inner Contract und nicht der adopter das ist falsch
     address owner;
-    bytes32 name;
+    string name;
     bytes32 hOhOhO;
 
-    constructor (bytes32 _name) public {
-        require(_name != 0);
+    constructor (string _name, address _owner) public {
+        //require definieren!!!
+        //require(_name != 0);
         name = _name;
-        owner = msg.sender;
+        owner = _owner;
     }
 
-    function getName() public view returns (bytes32) {
+    function getName() public view returns (string) {
         return name;
+    }
+
+    function getOwner() public view returns (address) {
+        return owner;
     }
 
 }

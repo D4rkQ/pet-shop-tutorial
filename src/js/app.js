@@ -6,21 +6,23 @@ App = {
   init: function() {
     // Load pets.
       //Daten des Kran aus der Blocckchain auslesen???????????? drizzle!!!!!
-    $.getJSON('../pets.json', function(data) {
-      var petsRow = $('#petsRow');
-      var petTemplate = $('#petTemplate');
 
-      for (i = 0; i < data.length; i ++) {
-        petTemplate.find('.panel-title').text(data[i].name);
-        petTemplate.find('img').attr('src', data[i].picture);
-        petTemplate.find('.pet-breed').text(data[i].breed);
-        petTemplate.find('.pet-age').text(data[i].age);
-        petTemplate.find('.pet-location').text(data[i].location);
-        petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
+    // $.getJSON('../pets.json', function(data) {
+    //   var petsRow = $('#petsRow');
+    //   var petTemplate = $('#petTemplate');
+    //
+    //   for (i = 0; i < data.length; i ++) {
+    //     petTemplate.find('.panel-title').text(data[i].name);
+    //     petTemplate.find('img').attr('src', data[i].picture);
+    //     petTemplate.find('.pet-breed').text(data[i].breed);
+    //     petTemplate.find('.pet-age').text(data[i].age);
+    //     petTemplate.find('.pet-location').text(data[i].location);
+    //     petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
+    //
+    //     petsRow.append(petTemplate.html());
+    //   }
+    // });
 
-        petsRow.append(petTemplate.html());
-      }
-    });
     return App.initWeb3();
   },
 
@@ -33,6 +35,11 @@ App = {
           App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
       }
       web3 = new Web3(App.web3Provider);
+
+      //ajax should be sync
+      $.ajaxSetup({
+          async: false
+      });
 
     return App.initContract();
 
@@ -57,13 +64,11 @@ App = {
               App.contracts.Kran.setProvider(App.web3Provider);
 
               // Use our contract to retrieve and mark the adopted pets
-              App.markAdopted();
+              App.initKrane();
               App.bindEvents();
           });
       });
   },
-
-
 
   bindEvents: function() {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
@@ -88,7 +93,6 @@ App = {
           //     }
           // });
 
-
           for (i = 0; i < adopters.length; i++) {
               if (adopters[i] !== '0x0000000000000000000000000000000000000000') {
                   $('.panel-pet').eq(i).find('button').text('Success').attr('disabled', true);
@@ -98,47 +102,60 @@ App = {
           console.log(err.message);
       });
 
-      return App.initKrane();
+      //return App.initKrane();
   },
 
     initKrane: function () {
-
         App.contracts.Adoption.deployed().then(function (instance) {
             adoptionInstance = instance;
 
             return adoptionInstance.getKrane.call();
         }).then(function (krane) {
+
             var petsRow = $('#petsRow');
             var petTemplate = $('#petTemplate');
 
+            //delete cranes before rebuilding them
             $(petsRow.empty());
+
+            //building cranes
             krane.forEach(function (kran, i) {
+
                 App.contracts.Kran.at(kran).then(function (kranInstance) {
+                    return kranInstance.getName();
+                }).then(function(kranName) {
+                    //$.getJSON('../pets.json', function (data) {
+                    petTemplate.find('.panel-title').text(kranName);
+                    petTemplate.find('img').attr('src', "images/high-top-crane.jpg");
+                    petTemplate.find('.pet-breed').text("data[i].breed");
+                    petTemplate.find('.pet-age').text("data[i].age");
+                    petTemplate.find('.pet-location').text("data[i].location");
+                    //All rent buttons get an ID to toggle success if they got rented
+                    petTemplate.find('.btn-adopt').attr('data-id', i);
 
-                    kranInstance.getName().then(function (kranName) {
+                    petsRow.append(petTemplate.html());
 
-                        $.getJSON('../pets.json', function (data) {
-                            petTemplate.find('.panel-title').text(kranName);
-                            petTemplate.find('img').attr('src', "images/high-top-crane.jpg");
-                            petTemplate.find('.pet-breed').text("data[i].breed");
-                            petTemplate.find('.pet-age').text("data[i].age");
-                            petTemplate.find('.pet-location').text("data[i].location");
-                            //Selbsterstellte Krane werden ab Index 30 eingefügt da 0-15 von den Pets belegt ist.
-                            petTemplate.find('.btn-adopt').attr('data-id', 30+i);
+                    App.contracts.Kran.at(kran).then(function (kranInstance) {
+                        return kranInstance.getOwner();
+                    }).then(function(kranOwner) {
 
-                            petsRow.append(petTemplate.html());
-                        });
+                        console.log("der " + i + "te" + " Kran Eigentümer mit Ethereum Adresse: " + kranOwner);
+
+                        //If the last crane was generated then mark all rented
+                        if (krane.length === i+1) {
+                            console.log("krane.length === i");
+                            App.markAdopted();
+                        }
                     });
                 });
             });
         });
-
     },
 
   handleAdopt: function(event) {
     event.preventDefault();
 
-    var petId = parseInt(event.target).data('id');
+      var petId = parseInt($(event.target).data('id'));
 console.log(petId);
       var adoptionInstance;
 
@@ -187,9 +204,6 @@ console.log(petId);
             });
 
         });
-
-
-
     },
 
     //Krandaten werden aus der Blockchain in Frontend gelesen

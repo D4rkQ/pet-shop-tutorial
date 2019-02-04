@@ -2,7 +2,7 @@ pragma solidity ^0.4.17;
 import "./Kran.sol";
 
 contract Adoption {
-    address[16] public adopters;
+    address[64] public adopters;
     bytes32 public conPara;
     address[] public krane;
 
@@ -11,8 +11,9 @@ contract Adoption {
         conPara = _conPara;
     }
 
-    function createKran(bytes32 name) public returns (Kran) {
-        Kran kran = new Kran(name);
+    function createKran(string name) public returns (Kran) {
+        //Der Ethereum Account der den Kran einstellt ist Eigentümer
+        Kran kran = new Kran(name, msg.sender);
         krane.push(kran);
         return kran;
     }
@@ -23,7 +24,7 @@ contract Adoption {
 
     // Adopting a pet
     function adopt(uint petId) public payable returns (uint) {
-        require(petId >= 0 && petId <= 15);
+        require(petId >= 0 && petId <= 63);
 
         adopters[petId] = msg.sender;
 
@@ -35,7 +36,7 @@ contract Adoption {
     }
 
     // Retrieving the adopters
-    function getAdopters() public view returns (address[16]) {
+    function getAdopters() public view returns (address[64]) {
         return adopters;
     }
 
