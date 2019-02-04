@@ -127,9 +127,9 @@ App = {
                     //$.getJSON('../pets.json', function (data) {
                     petTemplate.find('.panel-title').text(kranName);
                     petTemplate.find('img').attr('src', "images/high-top-crane.jpg");
-                    petTemplate.find('.pet-breed').text("data[i].breed");
-                    petTemplate.find('.pet-age').text("data[i].age");
-                    petTemplate.find('.pet-location').text("data[i].location");
+                    petTemplate.find('.pet-breed').text("200 €");
+                    petTemplate.find('.pet-age').text("68,00 m");
+                    petTemplate.find('.pet-location').text("2.650 kg");
                     //All rent buttons get an ID to toggle success if they got rented
                     petTemplate.find('.btn-adopt').attr('data-id', i);
 
