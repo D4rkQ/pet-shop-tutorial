@@ -70,8 +70,6 @@ App = {
       });
   },
 
-
-
   bindEvents: function() {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
     //Variable aus Formular einlesen
@@ -108,7 +106,6 @@ App = {
   },
 
     initCranes: function () {
-
         App.contracts.CraneBuilder.deployed().then(function (instance) {
             adoptionInstance = instance;
 
@@ -185,21 +182,26 @@ console.log(petId);
     createCrane: function (event) {
         var account;
 
-        //Getting data from HTML-form.
-        var craneName = $("#craneName").val();
+        // Collect data from html-form
+        var craneName = $("#cranName").val();
         //...
 
-        //Getting the Ethereum Account of the person that caused createCrane
+        /* Accesing the Ethereum-Blockchain-Node to get the Ethereum-
+        Account of the crane owner */
         web3.eth.getAccounts(function (error, accounts) {
             if (error) {
                 console.log(error);
             }
             account = accounts[0];
 
-            //Creating a crane with the Cranebuilder.sol Ethereum Smart Contract.
-            App.contracts.CraneBuilder.deployed().then(function (craneBuilderInstance) {
-                return craneBuilderInstance.createCrane(craneName, {from: account})
-            }).then(function () {
+            /* Accesing the Ethereum-Blockchain-Node to get an instance
+            of the CraneBuilder.sol Smart Contract*/
+            // Execution of the Smart Contract method "createCrane()"
+            App.contracts.CraneBuilder.deployed()
+                .then(function (craneBuilderInstance) {
+                    return craneBuilderInstance.createCrane(craneName, {from: account})
+                }).then(function () {
+                // After the crane is created the website get rebuilded.
                 return App.initCranes();
             });
         });

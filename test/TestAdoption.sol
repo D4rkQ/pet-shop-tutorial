@@ -2,10 +2,10 @@ pragma solidity ^0.4.17;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
-import "../contracts/Adoption.sol";
+import "../contracts/CraneBuilder.sol";
 
 contract TestAdoption {
-    Adoption adoption = Adoption(DeployedAddresses.Adoption());
+    CraneBuilder adoption = CraneBuilder(DeployedAddresses.Adoption());
     uint public initialBalance = 1 ether;
     uint private testWei = 200000 wei;
 

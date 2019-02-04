@@ -1,31 +1,32 @@
 pragma solidity ^0.4.17;
-import "./Kran.sol";
+import "./Crane.sol";
 
-contract Adoption {
-    address[16] public adopters;
+contract CraneBuilder {
+    address[64] public renters;
     bytes32 public conPara;
-    address[] public krane;
+    address[] public cranes;
 
     constructor (bytes32 _conPara) public {
         require(_conPara != 0);
         conPara = _conPara;
     }
 
-    function createKran(bytes32 name) public returns (Kran) {
-        Kran kran = new Kran(name);
-        krane.push(kran);
+    function createCrane(string name) public returns (Crane) {
+        //Der Ethereum Account der den Kran einstellt ist Eigentümer
+        Crane kran = new Kran(name, msg.sender);
+        cranes.push(kran);
         return kran;
     }
 
     function getKrane() public view returns (address[]) {
-        return krane;
+        return cranes;
     }
 
     // Adopting a pet
     function adopt(uint petId) public payable returns (uint) {
-        require(petId >= 0 && petId <= 15);
+        require(petId >= 0 && petId <= 63);
 
-        adopters[petId] = msg.sender;
+        renters[petId] = msg.sender;
 
         if(msg.value > 0) {
             address(this).transfer(msg.value);
@@ -35,8 +36,8 @@ contract Adoption {
     }
 
     // Retrieving the adopters
-    function getAdopters() public view returns (address[16]) {
-        return adopters;
+    function getAdopters() public view returns (address[64]) {
+        return renters;
     }
 
     function storeETH() payable public {
