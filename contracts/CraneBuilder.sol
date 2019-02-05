@@ -13,7 +13,7 @@ contract CraneBuilder {
 
     function createCrane(string name) public returns (Crane) {
         //Der Ethereum Account der den Kran einstellt ist Eigentümer
-        Crane kran = new Kran(name, msg.sender);
+        Crane kran = new Crane(name, msg.sender);
         cranes.push(kran);
         return kran;
     }
