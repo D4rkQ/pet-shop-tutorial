@@ -5,7 +5,7 @@ App = {
 
   init: function() {
     // Load pets.
-      //Daten des Kran aus der Blocckchain auslesen???????????? drizzle!!!!!
+      //Daten des Crane aus der Blocckchain auslesen???????????? drizzle!!!!!
 
     // $.getJSON('../pets.json', function(data) {
     //   var petsRow = $('#petsRow');
@@ -58,10 +58,10 @@ App = {
               var KranArtifact = data;
               //console.log(KranArtifact);
 
-              App.contracts.Kran = TruffleContract(KranArtifact);
+              App.contracts.Crane = TruffleContract(KranArtifact);
               console.log(App.contracts);
-              console.log(App.contracts.Kran.deployed());
-              App.contracts.Kran.setProvider(App.web3Provider);
+              console.log(App.contracts.Crane.deployed());
+              App.contracts.Crane.setProvider(App.web3Provider);
 
               // Use our contract to retrieve and mark the adopted pets
               App.initCranes();
@@ -79,13 +79,13 @@ App = {
     $('#initKran').on('click', App.initCranes);
   },
 
-  markAdopted: function(adopters, account) {
+  markRented: function(adopters, account) {
       var adoptionInstance;
 
       App.contracts.CraneBuilder.deployed().then(function(instance) {
           adoptionInstance = instance;
 
-          return adoptionInstance.getAdopters.call();
+          return CraneBuilderInstance.getAdopters.call();
       }).then(function(adopters) {
           console.log(adopters);
 
@@ -110,9 +110,9 @@ App = {
     initCranes: function () {
 
         App.contracts.CraneBuilder.deployed().then(function (instance) {
-            adoptionInstance = instance;
+            CraneBuilderInstance = instance;
 
-            return adoptionInstance.getKrane.call();
+            return CraneBuilderInstance.getKrane.call();
         }).then(function (krane) {
 
             var petsRow = $('#petsRow');
@@ -124,30 +124,27 @@ App = {
             //building cranes
             krane.forEach(function (kran, i) {
 
-                App.contracts.Kran.at(kran).then(function (kranInstance) {
+                App.contracts.Crane.at(kran).then(function (kranInstance) {
                     return kranInstance.getName();
                 }).then(function(kranName) {
                     //$.getJSON('../pets.json', function (data) {
                     petTemplate.find('.panel-title').text(kranName);
                     petTemplate.find('img').attr('src', "images/high-top-crane.jpg");
-                    petTemplate.find('.pet-breed').text("data[i].breed");
-                    petTemplate.find('.pet-age').text("data[i].age");
-                    petTemplate.find('.pet-location').text("data[i].location");
                     //All rent buttons get an ID to toggle success if they got rented
                     petTemplate.find('.btn-adopt').attr('data-id', i);
 
                     petsRow.append(petTemplate.html());
 
-                    App.contracts.Kran.at(kran).then(function (kranInstance) {
+                    App.contracts.Crane.at(kran).then(function (kranInstance) {
                         return kranInstance.getOwner();
                     }).then(function(kranOwner) {
 
-                        console.log("der " + i + "te" + " Kran Eigentümer mit Ethereum Adresse: " + kranOwner);
+                        console.log("der " + i + "te" + " Crane Eigentümer mit Ethereum Adresse: " + kranOwner);
 
                         //If the last crane was generated then mark all rented
                         if (krane.length === i+1) {
                             console.log("krane.length === i");
-                            App.markAdopted();
+                            App.markRented();
                         }
                     });
                 });
@@ -172,10 +169,10 @@ console.log(petId);
               adoptionInstance = instance;
 
               // Execute adopt as a transaction by sending account
-              return adoptionInstance.adopt(petId, {from: account});
+              return CraneBuilderInstance.adopt(petId, {from: account});
           }).then(function(result) {
               console.log(result.toString());
-              return App.markAdopted();
+              return App.markRented();
           }).catch(function(err) {
               console.log(err.message);
           });
@@ -209,17 +206,17 @@ console.log(petId);
    initKran: function () {
 
        App.contracts.CraneBuilder.deployed().then(function(instance) {
-           adoptionInstance = instance;
+           CraneBuilderInstance = instance;
 
-           return adoptionInstance.getKrane.call();
+           return CraneBuilderInstance.getKrane.call();
        }).then(function(krane) {
            //console.log(krane);
            console.log(krane[0]);
            return krane[0];
        }).then(function(address) {
-           console.log(App.contracts.Kran.at(address));
+           console.log(App.contracts.Crane.at(address));
            //Es ist nicht klar ob folgender Aufruf einen neuen Contract erstellt oder den der angegebenen Adresse aufruft
-           App.contracts.Kran.at(address).then(function(kranInstance) {
+           App.contracts.Crane.at(address).then(function(kranInstance) {
                var kranName = "asdfds";
                async function getKranName() {
                    console.log(await kranInstance.getName());
@@ -247,10 +244,10 @@ console.log(petId);
              })
 
 
-           // Kran getName mit Await
+           // Crane getName mit Await
            // let kranInstance;
            // async function getKranInstance() {
-           //     kranInstance = await App.contracts.Kran.at(address);
+           //     kranInstance = await App.contracts.Crane.at(address);
            //     console.log(kranInstance);
            //     return kranInstance;
            // }
@@ -267,7 +264,7 @@ console.log(petId);
            //     console.log(data);
            // });
            // console.log("dfasdfdsafds" + kranName);
-           // Kran getName mit Await
+           // Crane getName mit Await
 
 
 

@@ -12,13 +12,13 @@ contract CraneBuilder {
     }
 
     function createCrane(string name) public returns (Crane) {
-        //Der Ethereum Account der den Kran einstellt ist Eigentümer
+        //Der Ethereum Account der den Crane einstellt ist Eigentümer
         Crane kran = new Crane(name, msg.sender);
         cranes.push(kran);
         return kran;
     }
 
-    function getKrane() public view returns (address[]) {
+    function getCranes() public view returns (address[]) {
         return cranes;
     }
 
@@ -31,7 +31,6 @@ contract CraneBuilder {
         if(msg.value > 0) {
             address(this).transfer(msg.value);
         }
-
         return petId;
     }
 
